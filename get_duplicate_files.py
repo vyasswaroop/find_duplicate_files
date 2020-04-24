@@ -34,8 +34,14 @@ def groupBySize(fileList):
             unique[filesize].append(filename)
     return list(unique.values())
 
+def displayFiles(sortedFiles):
+    for filesList in sortedFiles:
+        if len(filesList) != 1 :
+            print(" ".join(filesList))
+
 if __name__=='__main__':
+    hashSorted = []
     fileList = [filename for filename in os.listdir('.') if os.path.isfile(filename)]
-    groupList = groupBySize(fileList)
-    for group in groupList:
-        print(groupBymd5(group))
+    sizeSorted = groupBySize(fileList)
+    for group in sizeSorted:
+        displayFiles(groupBymd5(group))
