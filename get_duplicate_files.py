@@ -47,8 +47,8 @@ def displayDuplicates(sortedFiles):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Find duplicate files.')
     parser.add_argument(
-        'path', metavar='N',
-        help='an integer for the accumulator'
+        'path', metavar='path',
+        help='Directory path to search duplicate files.'
     )
     args = parser.parse_args()
     hashSorted = []
