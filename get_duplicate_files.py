@@ -1,20 +1,28 @@
 import hashlib, os
 
-def getChunk(file, chunkSize=1024):
-    with open(file, 'rb') as fileObj:
-        chunk = fileObj.read(chunkSize)
-        return hashlib.md5(chunk).hexdigest()
+def readByChunk(fileObj, chunkSize=1024):
+    while True:
+        data = fileObj.read(chunkSize)
+        if not data:
+            return
+        yield data
+
+def hashFileByChunk(fileObj):
+    hashChunk = []
+    for chunk in readByChunk(fileObj):
+        hashChunk.append(hashlib.md5(chunk).hexdigest())
+    return tuple(hashChunk)
 
 def groupBymd5(group):
     unique = {}
     for filename in group:
-        filehash = getChunk(filename)
-        if not unique.get(filehash):
+        with open(filename, 'rb') as fileObj:
+            filehash = hashFileByChunk(fileObj)
+        if not filehash in unique:
             unique[filehash] = [filename]
         else:
             unique[filehash].append(filename)
-    print(list(unique.values()))
-    return unique
+    return list(unique.values())
 
 def groupBySize(fileList):
     unique = {}
@@ -30,4 +38,4 @@ if __name__=='__main__':
     fileList = [filename for filename in os.listdir('.') if os.path.isfile(filename)]
     groupList = groupBySize(fileList)
     for group in groupList:
-        groupBymd5(group)
+        print(groupBymd5(group))
