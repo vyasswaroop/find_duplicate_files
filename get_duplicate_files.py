@@ -9,7 +9,6 @@ def groupBymd5(group):
     unique = {}
     for filename in group:
         filehash = getChunk(filename)
-        filehash = hashlib.md5(open(filename, 'rb').read()).hexdigest()
         if not unique.get(filehash):
             unique[filehash] = [filename]
         else:
