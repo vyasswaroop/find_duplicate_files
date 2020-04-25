@@ -12,22 +12,48 @@ def readByChunk(fileObj, chunkSize=1024):
             return
         yield data
 
-def hashFileByChunk(fileObj):
-    hashChunk = []
-    for chunk in readByChunk(fileObj):
-        hashChunk.append(hashlib.md5(chunk).hexdigest())
-    return tuple(hashChunk)
-
-def groupBymd5(group, fileDir):
-    unique = {}
+def groupBymd5Duplicates(group, fileDir):
+    fileObjList = []
     for filename in group:
-        with open(getAbsolutePath(filename, fileDir), 'rb') as fileObj:
-            filehash = hashFileByChunk(fileObj)
-        if not filehash in unique:
-            unique[filehash] = [filename]
+        fileObj =  open(getAbsolutePath(filename, fileDir), 'rb')
+        fileObjList.append(fileObj)
+    groupList = groupByChunkHash(fileObjList)
+    refineList = []
+    for group in groupList:
+        itemList = []
+        if len(group) > 1:
+            for item in group:
+                itemList.append(item.name)
+                item.close()
+            refineList.append(itemList)
+    return refineList
+
+def groupByChunkHash(fileObjList):
+    groupList = []
+    unique = {}
+    if len(fileObjList) == 1:
+        return [fileObjList]
+    for fileObj in fileObjList:
+        try:
+            chunk = next(readByChunk(fileObj))
+            hash = hashlib.md5(chunk).hexdigest()
+            if not unique.get(hash):
+                unique[hash] = [fileObj]
+            else:
+                unique[hash].append(fileObj)
+        except:
+            if unique.get("nil"):
+                unique["nil"].append(fileObj)
+            else:
+                unique["nil"] = [fileObj]
+    for key, value in unique.items():
+        if not key == "nil":
+            group = groupByChunkHash(value)
+            groupList.append(group[0])
         else:
-            unique[filehash].append(filename)
-    return list(unique.values())
+            groupList.append(value)
+    return groupList
+
 
 def groupBySize(fileDir, fileList):
     unique = {}
@@ -41,8 +67,7 @@ def groupBySize(fileDir, fileList):
 
 def displayDuplicates(sortedFiles):
     for filesList in sortedFiles:
-        if len(filesList) != 1 :
-            print(" ".join(filesList))
+        print(" ".join(filesList))
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Find duplicate files.')
@@ -55,4 +80,4 @@ if __name__=='__main__':
     fileList = [filename for filename in os.listdir(args.path) if os.path.isfile(args.path + "/" +filename)]
     sizeSorted = groupBySize(args.path, fileList)
     for group in sizeSorted:
-        displayDuplicates(groupBymd5(group, args.path))
+        displayDuplicates(groupBymd5Duplicates(group, args.path))
