@@ -24,7 +24,10 @@ A simple python script to find duplicate files within a directory. The function 
 ### Improvements to be done
 
 1. Multiprocessing with multithreading
+2. For larger files the number of recursion can be higher and can crash
+3. Dynamic Chunk size as per the size of the files
 
 ### Assumptions
 
-1. duplicate files should have same size
+1. Duplicate files should have same size
+2. Hex Digest for MD5 hash for a thousand different files would not be identical
