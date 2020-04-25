@@ -23,7 +23,7 @@ def groupBymd5Duplicates(group, fileDir):
         itemList = []
         if len(group) > 1:
             for item in group:
-                itemList.append(item.name)
+                itemList.append(os.path.basename(item.name))
                 item.close()
             refineList.append(itemList)
     return refineList
