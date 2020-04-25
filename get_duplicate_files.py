@@ -1,4 +1,6 @@
 import hashlib, os, argparse
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 
 def getAbsolutePath(fileName, fileDir):
     if fileDir != ".":
@@ -76,8 +78,10 @@ if __name__=='__main__':
         help='Directory path to search duplicate files.'
     )
     args = parser.parse_args()
-    hashSorted = []
     fileList = [filename for filename in os.listdir(args.path) if os.path.isfile(args.path + "/" +filename)]
     sizeSorted = groupBySize(args.path, fileList)
-    for group in sizeSorted:
-        displayDuplicates(groupBymd5Duplicates(group, args.path))
+    sizeSorted = [item for item in sizeSorted if len(item) > 1]
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(groupBymd5Duplicates, group, args.path) for group in sizeSorted]
+        for future in as_completed(futures):
+            displayDuplicates(future.result())
