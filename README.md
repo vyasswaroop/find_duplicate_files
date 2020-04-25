@@ -13,7 +13,7 @@ A simple python script to find duplicate files within a directory. The function 
 ### Process
 
 1. Group files with same size
-2. Compare the files in each group by repeatedly checking md5 checksum for a chunk size of 1k
+2. Compare the files in each group by repeatedly checking md5 checksum for a chunk size of 1M
 3. Print duplicate files in a seperate lines
 
 ### Code Improvements implemented
