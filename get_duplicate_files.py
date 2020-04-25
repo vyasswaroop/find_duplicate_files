@@ -7,7 +7,7 @@ def getAbsolutePath(fileName, fileDir):
         return fileDir + "/" + fileName
     return fileName
 
-def readByChunk(fileObj, chunkSize=1024):
+def readByChunk(fileObj, chunkSize=1024000):
     while True:
         data = fileObj.read(chunkSize)
         if not data:
@@ -39,6 +39,7 @@ def groupByChunkHash(fileObjList):
         try:
             chunk = next(readByChunk(fileObj))
             hash = hashlib.md5(chunk).hexdigest()
+            del(chunk)
             if not unique.get(hash):
                 unique[hash] = [fileObj]
             else:
